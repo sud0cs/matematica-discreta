@@ -49,7 +49,7 @@ import java.util.stream.IntStream;
  * de texte estigui configurat amb codificació UTF-8.
  */
 class Entrega {
-  static final String[] NOMS = {};
+  static final String[] NOMS = {"Arion Sintes Sintes", "Ivan Felipe Sintes"};
 
   /*
    * Aquí teniu els exercicis del Tema 1 (Lògica).
@@ -316,7 +316,27 @@ class Entrega {
      * Determinau si el graf `g` (no dirigit) té cicles.
      */
     static boolean exercici1(int[][] g) {
-      throw new UnsupportedOperationException("pendent");
+      ArrayList<ArrayList<Integer>> lg = new ArrayList<>();
+      for(int[] i:g){
+        ArrayList<Integer> v = new ArrayList<>();
+        for(int j:i)v.add(j);
+        lg.add(v);
+      }
+      return recursiveCicleFinder(lg,0,0);
+    }
+
+    static boolean recursiveCicleFinder(ArrayList<ArrayList<Integer>> g, int pos, int iter){
+      if (g.get(pos).size() < 2) return false;
+      for(int i = 0; i<g.get(pos).size(); i++){
+      ArrayList<ArrayList<Integer>> narr = (ArrayList<ArrayList<Integer>>)g.clone();
+        int npos = narr.get(pos).remove(i);
+        if(i==0)if(iter!=0)return true;
+        else{
+          iter++;
+          return recursiveCicleFinder(narr, npos, iter);
+        }
+      }
+      return false;
     }
 
     /*
@@ -324,7 +344,17 @@ class Entrega {
      * 10.
      */
     static boolean exercici2(int[][] g1, int[][] g2) {
-      throw new UnsupportedOperationException("pendent");
+      if(g1.length!=g2.length)return false;
+      int[] g1gr = new int[g1.length];
+      int[] g2gr = new int[g2.length];
+      for(int i = 0; i<g1.length;i++){
+        g1gr[g1[i].length]++;
+        g2gr[g2[i].length]++;
+      }
+      for(int i = 0; i<g1.length;i++){
+        if(g1gr[i]!=g2gr[i])return false;
+      }
+      return true;
     }
 
     /*
@@ -373,6 +403,7 @@ class Entrega {
 
       final int[][] D2 = { {}, {} };
       final int[][] C3 = { {1, 2}, {0, 2}, {0, 1} };
+      final int[][] C4 = { {1}, {2,3}, {1,3}, {2,1} };
 
       final int[][] T1 = { {1, 2}, {0}, {0} };
       final int[][] T2 = { {1}, {0, 2}, {1} };
@@ -382,6 +413,7 @@ class Entrega {
 
       test(3, 1, 1, () -> !exercici1(D2));
       test(3, 1, 2, () -> exercici1(C3));
+      test(3, 1, 3, () -> !exercici1(C4));
 
       // Exercici 2
       // Isomorfisme de grafs
