@@ -79,7 +79,37 @@ class Entrega {
     static final char NAND = '.';
 
     static int exercici1(char[] ops, int[] vars) {
-      throw new UnsupportedOperationException("pendent");
+      int solucio = vars[0];
+
+      for(int i = 0; i < ops.length; i++) {
+        solucio = calculaOperacioLlogica(solucio, ops[i], vars[i + 1]);
+      }
+
+      return solucio;
+      //throw new UnsupportedOperationException("pendent");
+    }
+
+    static int calculaOperacioLlogica(int solTemp, char op, int var) {
+      switch(op) {
+        case CONJ: {
+          solTemp = ((solTemp >= 1) & (var >= 1))? 1: 0;
+        }
+        break;
+        case DISJ: {
+          solTemp = ((solTemp >= 1) | (var >= 1))? 1: 0;
+        }
+        break;
+        case IMPL: {
+          solTemp = (!(solTemp >= 1) | var >= 1)? 1 : 0;
+        }
+        break;
+        case NAND: {
+          solTemp = !((solTemp >= 1) & (var >= 1))? 1 : 0;
+        }
+        break;
+        default: {}
+      }
+      return solTemp;
     }
 
     /*
@@ -147,7 +177,21 @@ class Entrega {
      * Pista: Cercau informació sobre els nombres de Stirling.
      */
     static int exercici1(int[] a) {
-      throw new UnsupportedOperationException("pendent");
+      int n = a.length;
+      int subconjunts = 0;
+      for(int i = 0; i <= n; i++) {
+        subconjunts += calculaStirling(n, i);
+      }
+      return subconjunts;
+    }
+
+    static int calculaStirling(int n, int k) {
+      if(k == n) {
+        return 1;
+      } else if(k > n || k == 0 || n == 0) {
+        return 0;
+      }
+      return  k * calculaStirling(n - 1, k) + calculaStirling(n - 1, k - 1);
     }
 
     /*
@@ -158,7 +202,10 @@ class Entrega {
      * Si no existeix, retornau -1.
      */
     static int exercici2(int[] a, int[][] rel) {
-      throw new UnsupportedOperationException("pendent");
+      int cardinal = -1;
+
+      return cardinal;
+      //throw new UnsupportedOperationException("pendent");
     }
 
     /*
