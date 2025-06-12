@@ -79,32 +79,64 @@ class Entrega {
     static final char NAND = '.';
 
     static int exercici1(char[] ops, int[] vars) {
-      int solucio = vars[0];
-
-      for(int i = 0; i < ops.length; i++) {
-        solucio = calculaOperacioLlogica(solucio, ops[i], vars[i + 1]);
+      List<Integer> v2 = new ArrayList<>();
+      for(int v : vars) {
+        if(!v2.contains(v))
+          v2.add(v);
+      }
+      int[][] taulaVeritat = new int[(int) Math.pow(2, v2.size())][v2.size()];
+      for(int i = 0; i < taulaVeritat.length; i++) {
+        String s = Integer.toBinaryString(i);
+        while(s.length() < v2.size()) {
+          String s2 = "0" + s;
+          s = s2;
+        }
+        int[] value = new int[v2.size()];
+        for(int j = 0; j < s.length(); j++) {
+          value[j] = Integer.parseInt(String.valueOf(s.charAt(j)));
+        }
+        taulaVeritat[i] = value;
       }
 
-      return solucio;
+      int t = 0;
+      int c = 0;
+        for (int[] ints : taulaVeritat) {
+            int solucio = vars[0];
+            for (int j = 0; j < ops.length; j++) {
+                solucio = calculaOperacioLlogica(solucio, ops[j], ints[vars[j]]);
+            }
+
+            if (solucio == 1)
+                t++;
+            else
+                c++;
+        }
+
+      if(t == taulaVeritat.length)
+        return 1;
+      else if(c == taulaVeritat.length)
+        return 0;
+      else
+        return -1;
       //throw new UnsupportedOperationException("pendent");
     }
 
     static int calculaOperacioLlogica(int solTemp, char op, int var) {
       switch(op) {
         case CONJ: {
-          solTemp = ((solTemp >= 1) & (var >= 1))? 1: 0;
+          solTemp = ((solTemp == 1) & (var == 1))? 1: 0;
         }
         break;
         case DISJ: {
-          solTemp = ((solTemp >= 1) | (var >= 1))? 1: 0;
+          solTemp = ((solTemp == 1) | (var == 1))? 1: 0;
         }
         break;
         case IMPL: {
-          solTemp = (!(solTemp >= 1) | var >= 1)? 1 : 0;
+          solTemp = (!(solTemp == 1) | var == 1)? 1 : 0;
         }
         break;
         case NAND: {
-          solTemp = !((solTemp >= 1) & (var >= 1))? 1 : 0;
+          solTemp = !((solTemp == 1) & (var == 1))? 0 : 1;
         }
         break;
         default: {}
@@ -123,7 +155,18 @@ class Entrega {
      * (∀x : P(x)) <-> (∃!x : Q(x))
      */
     static boolean exercici2(int[] universe, Predicate<Integer> p, Predicate<Integer> q) {
-      throw new UnsupportedOperationException("pendent");
+      boolean px = true;
+      boolean qx;
+      int count = 0;
+      for(int x : universe) {
+        px = px && p.test(x);
+        if(q.test(x))
+          count++;
+      }
+      qx = count == 1;
+
+      return calculaOperacioLlogica((px ? 0 : 1), DISJ, (qx ? 1 : 0)) == 1;
+      //throw new UnsupportedOperationException("pendent");
     }
 
     static void tests() {
@@ -202,9 +245,19 @@ class Entrega {
      * Si no existeix, retornau -1.
      */
     static int exercici2(int[] a, int[][] rel) {
-      int cardinal = -1;
+      int solucio = -1;
+      int cardinal = 1;
 
-      return cardinal;
+      ArrayList<int[]> temp = new ArrayList<>();
+      for(int[] i : rel) {
+        if(!temp.contains(i)) {
+          temp.add(i);
+          cardinal++;
+        }
+      }
+
+      solucio += cardinal;
+      return solucio;
       //throw new UnsupportedOperationException("pendent");
     }
 
@@ -216,7 +269,24 @@ class Entrega {
      * - null en qualsevol altre cas
      */
     static Integer exercici3(int[] a, int[][] rel, int[] x, boolean op) {
-      throw new UnsupportedOperationException("pendent");
+      int infimX = x[0];
+      int supremX = x[0];
+
+      System.out.println("a: " + Arrays.toString(a));
+      System.out.println("x: " + Arrays.toString(x));
+      for(int[] i : rel)
+        System.out.println("rel: " + Arrays.toString(i));
+
+      for (int i : x) {
+          infimX = Math.min(infimX, i);
+          supremX = Math.max(supremX, i);
+      }
+
+      if(op)
+        return infimX;
+      else
+        return supremX;
+      //throw new UnsupportedOperationException("pendent");
     }
 
     /*
@@ -227,8 +297,11 @@ class Entrega {
      *  - Sinó, null.
      */
     static int[][] exercici4(int[] a, int[] b, Function<Integer, Integer> f) {
+
       throw new UnsupportedOperationException("pendent");
     }
+
+
 
     /*
      * Aquí teniu alguns exemples i proves relacionades amb aquests exercicis (vegeu `main`)
