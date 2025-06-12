@@ -272,11 +272,6 @@ class Entrega {
       int infimX = x[0];
       int supremX = x[0];
 
-      System.out.println("a: " + Arrays.toString(a));
-      System.out.println("x: " + Arrays.toString(x));
-      for(int[] i : rel)
-        System.out.println("rel: " + Arrays.toString(i));
-
       for (int i : x) {
           infimX = Math.min(infimX, i);
           supremX = Math.max(supremX, i);
