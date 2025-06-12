@@ -412,7 +412,40 @@ class Entrega {
      * vèrtex.
      */
     static int[] exercici3(int[][] g, int r) {
-      throw new UnsupportedOperationException("pendent");
+      return recursiveTreeAnalizer(0, 0, 0, 0, g, null);
+      //throw new UnsupportedOperationException("pendent");
+    }
+    
+    //v = visited nodes
+    static int[] recursiveTreeAnalizer(int node, int prev_node, int pos, int arrpos, int[][] g, int[] v){
+      if(v==null)v=new int[0];
+      int[] v2 = v.clone();
+      v = new int[v2.length+1];
+      for(int i=0;i<v2.length;i++)v[i]=v2[i];
+      v[v2.length]=node;
+      for (int n:g[node]){
+        pos++;
+        for(int pn:v){
+          if(pn==n && pn!=prev_node){
+            return null;
+          }
+        }
+        if(n!=prev_node)v=recursiveTreeAnalizer(n, node, pos, node==0?v.length-1:arrpos, g, v);
+        if(v==null)return null;
+      }
+      if(g[node].length==1){
+        v2 = v.clone();
+        int inv = arrpos;
+        for(int i=0;i<arrpos;i++){
+          v[i]=v2[i];
+        }
+        for(int i=v2.length-1;i>=arrpos;i--){
+          v[inv] = v2[i];
+          inv++;
+        }
+        arrpos=pos;
+      }
+      return v;
     }
 
     /*
