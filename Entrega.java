@@ -431,24 +431,22 @@ class Entrega {
      * Determinau si el graf `g` (no dirigit) té cicles.
      */
     static boolean exercici1(int[][] g) {
-      ArrayList<ArrayList<Integer>> lg = new ArrayList<>();
-      for(int[] i:g){
-        ArrayList<Integer> v = new ArrayList<>();
-        for(int j:i)v.add(j);
-        lg.add(v);
-      }
-      return recursiveCicleFinder(lg,0,0);
+      return recursiveCicleFinder(g,0,0,null);
     }
 
-    static boolean recursiveCicleFinder(ArrayList<ArrayList<Integer>> g, int pos, int iter){
-      if (g.get(pos).size() < 2) return false;
-      for(int i = 0; i<g.get(pos).size(); i++){
-      ArrayList<ArrayList<Integer>> narr = (ArrayList<ArrayList<Integer>>)g.clone();
-        int npos = narr.get(pos).remove(i);
-        if(i==0)if(iter!=0)return true;
-        else{
-          iter++;
-          return recursiveCicleFinder(narr, npos, iter);
+    static boolean recursiveCicleFinder(int[][] g, int node, int prev_node, int[] v){
+      if(v==null)v=new int[0];
+      int[] v2 = v.clone();
+      v = new int[v2.length+1];
+      for(int i=0;i<v2.length;i++)v[i]=v2[i];
+      v[v2.length]=node;
+      for(int n: g[node]){
+        if (g[node].length<2)return false;
+        if(node!=n && n!=prev_node){
+          for(int pn:v){
+            if(pn==n && pn!=node)return true;
+          }
+          return recursiveCicleFinder(g, n, node, v);
         }
       }
       return false;
@@ -480,41 +478,61 @@ class Entrega {
      * vèrtex.
      */
     static int[] exercici3(int[][] g, int r) {
-      return recursiveTreeAnalizer(0, 0, 0, 0, g, null);
+      if(exercici1(g))return null;
+      int node = findInitialNode(g, 0, 0, 0);
+      if(node==-1)return null;
+      return recursiveTreeAnalizer(node, node, null, g, null);
       //throw new UnsupportedOperationException("pendent");
     }
     
     //v = visited nodes
-    static int[] recursiveTreeAnalizer(int node, int prev_node, int pos, int arrpos, int[][] g, int[] v){
+    static int[] recursiveTreeAnalizer(int node, int prev_node, int[] count, int[][] g, int[] v){
+      if(count == null){count=new int[g.length];count[0]=-1;}
       if(v==null)v=new int[0];
       int[] v2 = v.clone();
       v = new int[v2.length+1];
       for(int i=0;i<v2.length;i++)v[i]=v2[i];
       v[v2.length]=node;
+      if(v.length>g.length)return v;
+      if(node==0)return v;
       for (int n:g[node]){
-        pos++;
-        for(int pn:v){
-          if(pn==n && pn!=prev_node){
-            return null;
+        if(n!=prev_node){
+          if(g[n].length-count[n]<3){
+            return recursiveTreeAnalizer(n, node, count, g, v);
+          }
+          else{
+            count[n]++;
+            int inode = findInitialNode(g, n, v, 0);
+            return recursiveTreeAnalizer(inode, inode, count, g, v);
           }
         }
-        if(n!=prev_node)v=recursiveTreeAnalizer(n, node, pos, node==0?v.length-1:arrpos, g, v);
-        if(v==null)return null;
-      }
-      if(g[node].length==1){
-        v2 = v.clone();
-        int inv = arrpos;
-        for(int i=0;i<arrpos;i++){
-          v[i]=v2[i];
-        }
-        for(int i=v2.length-1;i>=arrpos;i--){
-          v[inv] = v2[i];
-          inv++;
-        }
-        arrpos=pos;
       }
       return v;
     }
+
+    static int findInitialNode(int[][] g, int node, int prev_node, int nc){
+      if(nc>g.length)return -1;
+      if(node!=0 && g[node].length==1) return node;
+      for(int n:g[node]){
+        if(n!=prev_node && n>node) return findInitialNode(g, n, node, nc+1);
+      }
+      return node;
+    }
+
+    static int findInitialNode(int[][] g, int node, int[] prev_nodes, int nc){
+      if(nc>g.length)return -1;
+      if(node!=0 && g[node].length==1) return node;
+      boolean f = false;
+      for(int n:g[node]){
+        for(int pn:prev_nodes)
+          if(n!=pn && n>node) f=true;
+          else{f=false;break;}
+          if(f)return findInitialNode(g, n, node, nc+1);
+      }
+      return node;
+    }
+
+    //static int isTree()
 
     /*
      * Suposau que l'entrada és un mapa com el següent, donat com String per files (vegeu els tests)
@@ -555,6 +573,7 @@ class Entrega {
 
       final int[][] T1 = { {1, 2}, {0}, {0} };
       final int[][] T2 = { {1}, {0, 2}, {1} };
+      final int[][] T3 = { {1,2,3}, {0,5}, {0,4}, {0}, {2,6,7}, {1}, {4}, {4}};
 
       // Exercici 1
       // G té cicles?
@@ -574,6 +593,7 @@ class Entrega {
 
       test(3, 3, 1, () -> exercici3(C3, 1) == null);
       test(3, 3, 2, () -> Arrays.equals(exercici3(T1, 0), new int[] { 1, 2, 0 }));
+      test(3, 3, 3, () -> Arrays.equals(exercici3(T3, 0), new int[] { 5, 1, 6, 7, 4, 2, 3, 0 }));
 
       // Exercici 4
       // Laberint
