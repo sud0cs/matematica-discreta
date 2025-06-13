@@ -88,8 +88,7 @@ class Entrega {
       for(int i = 0; i < taulaVeritat.length; i++) {
         String s = Integer.toBinaryString(i);
         while(s.length() < v2.size()) {
-          String s2 = "0" + s;
-          s = s2;
+            s = "0" + s;
         }
         int[] value = new int[v2.size()];
         for(int j = 0; j < s.length(); j++) {
@@ -269,18 +268,28 @@ class Entrega {
      * - null en qualsevol altre cas
      */
     static Integer exercici3(int[] a, int[][] rel, int[] x, boolean op) {
-      int infimX = x[0];
-      int supremX = x[0];
+      int infimX = 0;
+      int supremX = 0;
 
-      for (int i : x) {
-          infimX = Math.min(infimX, i);
-          supremX = Math.max(supremX, i);
+      for(int i : a) {
+        int count = 0;
+        for(int j : a) {
+          if(j % i == 0)
+            count++;
+        }
+
+        if(count == a.length) {
+          infimX = i;
+          supremX = i;
+        }
       }
 
-      if(op)
+      if(infimX != 0 && !op)
         return infimX;
-      else
+      else if(supremX != 1 && op)
         return supremX;
+      else
+        return null;
       //throw new UnsupportedOperationException("pendent");
     }
 
@@ -292,11 +301,34 @@ class Entrega {
      *  - Sinó, null.
      */
     static int[][] exercici4(int[] a, int[] b, Function<Integer, Integer> f) {
+      if(!comprovaDuplicitat(a, b)) {
+        int[][] solucio = new int[b.length][2];
+        for(int i : b) {
+          solucio[i][0] = i;
+          if(a.length > b.length)
+            solucio[i][1] = Math.min(a[i * 2], a[i * 2 + 1]);
+          else
+            solucio[i][1] = f.apply(i);
+        }
+        return solucio;
+      }
 
-      throw new UnsupportedOperationException("pendent");
+      return null;
+      //throw new UnsupportedOperationException("pendent");
     }
 
-
+    static boolean comprovaDuplicitat(int[] a, int[] b) {
+      for(int i : a) {
+        int count = 0;
+        for(int j : b) {
+          if(i == j)
+            count++;
+          if(count > 1)
+            return true;
+        }
+      }
+      return false;
+    }
 
     /*
      * Aquí teniu alguns exemples i proves relacionades amb aquests exercicis (vegeu `main`)
@@ -323,14 +355,14 @@ class Entrega {
       final int[][] DIV15 = generateRel(INT15, (n, m) -> m % n == 0);
       final Integer ONE = 1;
 
+
+      final int[] INT05 = { 0, 1, 2, 3, 4, 5 };
+
       test(2, 3, 1, () -> ONE.equals(exercici3(INT15, DIV15, new int[] { 2, 3 }, false)));
       test(2, 3, 2, () -> exercici3(INT15, DIV15, new int[] { 2, 3 }, true) == null);
 
       // Exercici 4
       // Inverses
-
-      final int[] INT05 = { 0, 1, 2, 3, 4, 5 };
-
       test(2, 4, 1, () -> {
         var inv = exercici4(INT05, INT02, (x) -> x/2);
 
