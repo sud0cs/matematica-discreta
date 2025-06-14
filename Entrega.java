@@ -599,7 +599,6 @@ class Entrega {
       int node = findInitialNode(g, 0, 0, 0);
       if(node==-1)return null;
       return recursiveTreeAnalizer(node, node, null, g, null);
-      //throw new UnsupportedOperationException("pendent");
     }
     
     //v = visited nodes
@@ -676,7 +675,72 @@ class Entrega {
      * Si és impossible, retornau -1.
      */
     static int exercici4(char[][] mapa) {
-      throw new UnsupportedOperationException("pendent");
+      //throw new UnsupportedOperationException("pendent");
+      int opos_x = 0;
+      int opos_y = 0;
+      int dpos_x = 0;
+      int dpos_y = 0;
+      for(int i = 0;i<mapa.length;i++){
+        for(int j = 0;j<mapa[i].length;j++){
+          if(mapa[i][j]=='O'){opos_x=i;opos_y=j;}
+          if(mapa[i][j]=='D'){dpos_x=i;dpos_y=j;}
+        }
+      }
+      int[][] pathmap = pathMap(mapa, null, opos_x, opos_y);
+      int out = pathmap[dpos_x][dpos_y];
+      return out==Integer.MAX_VALUE?-1:out;
+    }
+
+
+    static int[][] pathMap(char[][] map, int[][] pmap, int posx, int posy){
+      if(pmap==null){
+        pmap = new int[map.length][map[0].length];
+        for(int i=0;i<pmap.length;i++){
+          for(int j=0;j<pmap[i].length;j++){
+            pmap[i][j] = Integer.MAX_VALUE;
+          }
+        }
+        pmap[posx][posy]=0;
+      }
+      ArrayList<int[]> posStorage = new ArrayList<>();
+      posStorage.add(new int[]{posx, posy});
+      for (int i = 0; i<map.length*map[0].length; i++){
+        @SuppressWarnings("unchecked")
+        ArrayList<int[]> posStorageBackup = (ArrayList<int[]>)posStorage.clone();
+        for(int[] pos:posStorageBackup){
+          posx = pos[0];
+          posy = pos[1];
+          if (posx+1 < pmap.length){
+            if(pmap[posx+1][posy]>pmap[posx][posy]+1 && setNext(map, pmap, posx+1, posy, posx, posy)) posStorage.add(new int[]{posx+1, posy});
+          }
+          if (posx-1 >= 0){
+            if(pmap[posx-1][posy]>pmap[posx][posy]+1 && setNext(map, pmap, posx-1, posy, posx, posy)) posStorage.add(new int[]{posx-1, posy});
+          }
+          if (posy+1 < pmap[0].length){
+            if(pmap[posx][posy+1]>pmap[posx][posy]+1 && setNext(map, pmap, posx, posy+1, posx, posy)) posStorage.add(new int[]{posx, posy+1});
+          }
+          if (posy-1 >= 0){
+            if(pmap[posx][posy-1]>pmap[posx][posy]+1 && setNext(map, pmap, posx, posy-1, posx, posy)) posStorage.add(new int[]{posx, posy-1});
+          }
+          posStorage.remove(pos);
+        }
+      }
+      return pmap;
+
+      //int[posx][posy]
+    }
+
+    static boolean setNext(char[][] map, int[][] pmap, int posx, int posy, int pposx, int pposy){
+      switch(map[posx][posy]){
+        case 'D':
+        case ' ':
+          pmap[posx][posy]=pmap[pposx][pposy]+1;
+          return true;
+        case '#':
+          return false;
+        default:
+          return false;
+      }
     }
 
     /*
