@@ -244,20 +244,105 @@ class Entrega {
      * Si no existeix, retornau -1.
      */
     static int exercici2(int[] a, int[][] rel) {
-      int solucio = -1;
-      int cardinal = 1;
 
       ArrayList<int[]> temp = new ArrayList<>();
-      for(int[] i : rel) {
-        if(!temp.contains(i)) {
-          temp.add(i);
-          cardinal++;
+      for (int value : a) {
+        for (int[] ints : rel) {
+          for (int anInt : ints) {
+            temp.add(new int[]{value, anInt});
+          }
         }
       }
 
-      solucio += cardinal;
-      return solucio;
+      int[][] conjunt = temp.toArray(new int[][]{});
+
+      conjunt = esborraDuplicats(conjunt);
+      boolean reflexiva = esReflexiva(conjunt, a.length);
+      boolean antisimetrica = esAntisimetrica(conjunt);
+      conjunt = esborraIncorrectes(conjunt);
+      boolean transitiva = esTransitiva(conjunt);
+
+      if(reflexiva && transitiva && antisimetrica)
+        return esborraIncorrectes(conjunt).length;
+      else
+        return -1;
       //throw new UnsupportedOperationException("pendent");
+    }
+
+    static boolean esReflexiva(int[][] conjunt, int nombres) {
+      int count = 0;
+      for(int[] sub : conjunt) {
+        if(sub[0] == sub[1])
+          count++;
+      }
+      return count == nombres;
+    }
+
+    static boolean esTransitiva(int[][] conjunt) {
+      int count = 0;
+      for(int[] c1 : conjunt) {
+        for(int[] c2 : conjunt) {
+          for(int[] c3 : conjunt) {
+            if(c1[0] != c1[1] && c2[0] != c2[1] && c3[0] != c3[1]) {
+              if (c1 != c2) {
+                if (c3 != c1 && c3 != c2) {
+                  if (c1[0] == c3[0] && c2[1] == c3[1]) {
+                    count++;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      return count != 0;
+    }
+
+    static boolean esAntisimetrica(int[][] conjunt) {
+      int count = 0;
+      for(int[] c : conjunt) {
+        for(int[] c2 : conjunt) {
+          if(c[0] == c2[1] && c[1] == c2[0]) {
+            count++;
+            break;
+          }
+        }
+      }
+      return count == conjunt.length;
+    }
+    
+    static int[][] esborraDuplicats(int[][] conjunt) {
+      ArrayList<int[]> senseDuplicats = new ArrayList<>();
+      for(int[] c : conjunt) {
+        if(senseDuplicats.isEmpty())
+          senseDuplicats.add(c);
+        else {
+          int dup = 0;
+          for(int[] c2 : senseDuplicats) {
+            if(c[0] == c2[0] && c[1] == c2[1]) {
+              dup++;
+              break;
+            }
+          }
+          if(dup == 0)
+            senseDuplicats.add(c);
+        }
+      }
+      return senseDuplicats.toArray(new int[][]{});
+    }
+
+    static int[][] esborraIncorrectes(int[][] conjunt) {
+      ArrayList<int[]> senseIncorrectes = new ArrayList<>();
+      for(int[] c : conjunt) {
+        if(senseIncorrectes.isEmpty())
+          senseIncorrectes.add(c);
+        else {
+          if(c[0] <= c[1])
+            senseIncorrectes.add(c);
+        }
+      }
+      return senseIncorrectes.toArray(new int[][]{});
     }
 
     /*
