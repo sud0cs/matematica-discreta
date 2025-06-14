@@ -245,6 +245,9 @@ class Entrega {
      */
     static int exercici2(int[] a, int[][] rel) {
 
+      if(esTransitiva(rel))
+        return -1;
+
       ArrayList<int[]> temp = new ArrayList<>();
       for (int value : a) {
         for (int[] ints : rel) {
@@ -260,9 +263,8 @@ class Entrega {
       boolean reflexiva = esReflexiva(conjunt, a.length);
       boolean antisimetrica = esAntisimetrica(conjunt);
       conjunt = esborraIncorrectes(conjunt);
-      boolean transitiva = esTransitiva(conjunt);
 
-      if(reflexiva && transitiva && antisimetrica)
+      if(reflexiva && antisimetrica)
         return esborraIncorrectes(conjunt).length;
       else
         return -1;
@@ -279,24 +281,13 @@ class Entrega {
     }
 
     static boolean esTransitiva(int[][] conjunt) {
-      int count = 0;
       for(int[] c1 : conjunt) {
         for(int[] c2 : conjunt) {
-          for(int[] c3 : conjunt) {
-            if(c1[0] != c1[1] && c2[0] != c2[1] && c3[0] != c3[1]) {
-              if (c1 != c2) {
-                if (c3 != c1 && c3 != c2) {
-                  if (c1[0] == c3[0] && c2[1] == c3[1]) {
-                    count++;
-                    break;
-                  }
-                }
-              }
-            }
-          }
+          if((c1 != c2) && c1[0] == c2[1] && c1[1] == c2[0])
+            return true;
         }
       }
-      return count != 0;
+      return false;
     }
 
     static boolean esAntisimetrica(int[][] conjunt) {
