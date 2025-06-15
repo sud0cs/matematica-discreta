@@ -693,6 +693,7 @@ class Entrega {
         }
         pmap[posx][posy]=0;
       }
+
       ArrayList<int[]> posStorage = new ArrayList<>();
       posStorage.add(new int[]{posx, posy});
       for (int i = 0; i<map.length*map[0].length; i++){
@@ -786,6 +787,20 @@ class Entrega {
             "    ".toCharArray(),
         });
       });
+
+      test(3,4,3, () -> {
+        return 58 == exercici4(new char[][]{
+        "          #       #########      ####".toCharArray(),
+        "       O  # ###   #########  ##  ####".toCharArray(),
+        "    ####### ###   #########  ##      ".toCharArray(),
+        "    ####  # ###   #########  ######  ".toCharArray(),
+        "    ####    ###              ######  ".toCharArray(),
+        "    ######################## ##      ".toCharArray(),
+        "    ####                     ## D    ".toCharArray(),
+        "                             ##      ".toCharArray()
+
+        });
+      });
     }
   }
 
@@ -815,9 +830,46 @@ class Entrega {
      * Pista: https://en.wikipedia.org/wiki/Exponentiation_by_squaring
      */
     static int[] exercici1(String msg, int n, int e) {
-      throw new UnsupportedOperationException("pendent");
+      long[] out = new long[(int)msg.length()/2];
+      byte[] in = msg.getBytes();
+      for(int i = 0; i<in.length; i++){
+        int index = (int)Math.floor(i/2);
+        out[index] += in[i]*Math.pow(128l, (i+1)%2);
+      }
+      for(int i = 0; i<out.length; i++){
+        out[i] = sqmodpow(out[i],e,n);
+      }
+      int[] x = new int[out.length];
+      for(int i = 0; i<x.length;i++)x[i]=(int)out[i];
+      return x;
     }
 
+    static long sqmodpow(long a, long b, long n){
+      char[] bin = Long.toBinaryString(b).toCharArray();
+      long result = 1l;
+      int checkpoint = 0;
+      //long r = a%n;
+      long[] mult = new long[bin.length];
+      for(int i = bin.length-1;i>-1;i--){
+        if (bin[i]=='1'){
+          if(i==bin.length-1){mult[i]=a%n;checkpoint=i;}
+          else{
+            long x = checkpoint==0?a%n:mult[checkpoint];
+            for(int j = 0; j<checkpoint-i;j++){
+              x=(x*x)%n;
+            }
+            mult[i] = x;
+            checkpoint = i;
+          }
+        }
+      }
+      for(long i:mult){
+        if(i!=0){
+          result=i*(result%n);
+        }
+      }
+      return result%n;
+    }
     /*
      * Primer, desencriptau el missatge utilitzant xifrat RSA amb la clau pública donada. Després
      * descodificau el missatge en blocs de longitud 2 amb codificació ASCII (igual que l'exercici
@@ -831,9 +883,79 @@ class Entrega {
      * - El valor de tots els caràcters originals estava entre 32 i 127.
      * - La clau pública (n, e) és de la forma vista a les transparències.
      * - n és major que 2¹⁴, i n² és menor que Integer.MAX_VALUE
-     */
+    */
+
     static String exercici2(int[] m, int n, int e) {
-      throw new UnsupportedOperationException("pendent");
+      StringBuilder fstr = new StringBuilder();
+      ArrayList<Integer> mods = new ArrayList<>();
+      ArrayList<int[]> factorization = primeFactorization(n);
+      int phi = 1;
+      for(int[] i:factorization){
+        phi*=(Math.pow(i[0], i[1])-Math.pow(i[0], i[1]-1));
+      }
+      int inv = inverse(e, phi);
+      for(int data:m){
+        StringBuilder str = new StringBuilder();
+        long d = sqmodpow(data, inv, n);
+        long ml = 1;
+        long ex = 0;
+        long sub = 0;
+        for (int i = 0; i<2; i++) {
+          long c = ((d-sub)/ml)%128;
+          str.append((char)c);
+          ml*=128;
+          sub+=c*Math.pow(128,ex);
+          ex++;
+        }
+        str = str.reverse();
+        fstr.append(str);
+      }
+      return fstr.toString();
+    }
+
+    static int inverse(int a, int b){
+      int n = a % b;
+      for (int x = 1; x < b; x++) {
+        if ((n * x) % b==1) {
+            return x;
+        }
+      }
+      return -1;
+    }
+
+    static ArrayList<int[]> primeFactorization(int n){
+      ArrayList<int[]> factors = new ArrayList<>();
+      ArrayList<Integer> pf = new ArrayList<>();
+      int c=n;
+      for(int i = 2; i<c;i+=2){
+        if(n==1)break;
+        if(i==2){
+          int[] fc = new int[]{2,0};
+          while(n%2==0){
+            n/=2;
+            fc[1]++;
+          };
+          i-=1;
+          if(fc[1]!=0)factors.add(fc);
+          pf.add(fc[0]);
+        }
+        else{
+          boolean skip = false;
+          for(int j:pf){
+            if(j%n==0){skip=true;break;}
+          }
+          if(skip || n%i!=0)continue;
+          int[] fc = new int[]{i,0};
+          while(n%i==0){
+            n/=i;
+            fc[1]++;
+          };
+          pf.add(fc[0]);
+          factors.add(fc);
+        }
+      }
+      if(factors.isEmpty())factors.add(new int[]{n, 1});
+      return factors;
     }
 
     static void tests() {
